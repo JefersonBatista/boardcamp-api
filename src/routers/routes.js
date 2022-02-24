@@ -1,9 +1,9 @@
 import { Router } from "express";
 
-import helloRouter from "./helloRouter.js";
+import categoriesRouter from "./categoriesRouter.js";
 
 const routes = Router();
 
-routes.use(helloRouter);
+routes.use(categoriesRouter);
 
 export default routes;
