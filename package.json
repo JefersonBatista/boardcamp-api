@@ -1,0 +1,29 @@
+{
+  "name": "boardcamp-api",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "npx nodemon src/app.js",
+    "lint": "npx eslint src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JefersonBatista/boardcamp-api.git"
+  },
+  "author": "JefersonBatista",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JefersonBatista/boardcamp-api/issues"
+  },
+  "homepage": "https://github.com/JefersonBatista/boardcamp-api#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.3"
+  },
+  "devDependencies": {
+    "eslint": "^8.9.0",
+    "nodemon": "^2.0.15"
+  }
+}
