@@ -8,6 +8,7 @@ export async function getCategories(_, res) {
 
     return res.send(result.rows);
   } catch (error) {
+    console.error(error);
     return res.status(500).send("Houve um erro interno no servidor");
   }
 }
@@ -18,8 +19,7 @@ export async function createCategory(req, res) {
   try {
     const categories = await db_connection.query(
       `
-      SELECT * FROM categories WHERE name=$1;
-    `,
+      SELECT * FROM categories WHERE name=$1;`,
       [name]
     );
 
@@ -29,13 +29,13 @@ export async function createCategory(req, res) {
 
     await db_connection.query(
       `
-      INSERT INTO categories (name) VALUES ($1);
-    `,
+      INSERT INTO categories (name) VALUES ($1);`,
       [name]
     );
 
     return res.sendStatus(201);
   } catch (error) {
+    console.error(error);
     return res.status(500).send("Houve um erro interno no servidor");
   }
 }
