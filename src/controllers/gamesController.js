@@ -2,10 +2,9 @@ import db_connection from "../database/connection.js";
 
 export async function getGames(_, res) {
   try {
-    const result = await db_connection.query(`
-      SELECT games.*, categories.name AS "categoryName" FROM games
-        JOIN categories ON games."categoryId"=categories.id;
-    `);
+    const result = await db_connection.query(
+      `SELECT games.*, categories.name AS "categoryName" FROM games JOIN categories ON games."categoryId"=categories.id;`
+    );
 
     return res.send(result.rows);
   } catch (error) {
@@ -19,8 +18,7 @@ export async function createGame(req, res) {
 
   try {
     const category = await db_connection.query(
-      `
-      SELECT * FROM categories WHERE id=$1`,
+      `SELECT * FROM categories WHERE id=$1`,
       [newGame.categoryId]
     );
 
@@ -29,8 +27,7 @@ export async function createGame(req, res) {
     }
 
     const games = await db_connection.query(
-      `
-      SELECT * FROM games WHERE name=$1`,
+      `SELECT * FROM games WHERE name=$1`,
       [newGame.name]
     );
 
@@ -39,8 +36,7 @@ export async function createGame(req, res) {
     }
 
     await db_connection.query(
-      `
-      INSERT INTO games (name, image, "stockTotal", "categoryId", "pricePerDay")
+      `INSERT INTO games (name, image, "stockTotal", "categoryId", "pricePerDay")
         VALUES ($1, $2, $3, $4, $5)`,
       Object.values(newGame)
     );

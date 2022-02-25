@@ -2,9 +2,7 @@ import db_connection from "../database/connection.js";
 
 export async function getCategories(_, res) {
   try {
-    const result = await db_connection.query(`
-      SELECT * FROM categories;
-    `);
+    const result = await db_connection.query(`SELECT * FROM categories;`);
 
     return res.send(result.rows);
   } catch (error) {
@@ -18,8 +16,7 @@ export async function createCategory(req, res) {
 
   try {
     const categories = await db_connection.query(
-      `
-      SELECT * FROM categories WHERE name=$1;`,
+      `SELECT * FROM categories WHERE name=$1;`,
       [name]
     );
 
@@ -27,11 +24,9 @@ export async function createCategory(req, res) {
       return res.status(409).send("Já existe uma categoria com esse nome");
     }
 
-    await db_connection.query(
-      `
-      INSERT INTO categories (name) VALUES ($1);`,
-      [name]
-    );
+    await db_connection.query(`INSERT INTO categories (name) VALUES ($1);`, [
+      name,
+    ]);
 
     return res.sendStatus(201);
   } catch (error) {
