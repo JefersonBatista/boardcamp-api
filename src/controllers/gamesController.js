@@ -1,8 +1,8 @@
-import db_connection from "../database/connection.js";
+import dbConnection from "../database/connection.js";
 
 export async function getGames(_, res) {
   try {
-    const result = await db_connection.query(
+    const result = await dbConnection.query(
       `SELECT games.*, categories.name AS "categoryName" FROM games JOIN categories ON games."categoryId"=categories.id;`
     );
 
@@ -14,31 +14,31 @@ export async function getGames(_, res) {
 }
 
 export async function createGame(req, res) {
-  const newGame = req.body;
+  const { name, image, stockTotal, categoryId, pricePerDay } = req.body;
 
   try {
-    const category = await db_connection.query(
+    const category = await dbConnection.query(
       `SELECT * FROM categories WHERE id=$1`,
-      [newGame.categoryId]
+      [categoryId]
     );
 
     if (category.rows.length === 0) {
       return res.status(400).send("Não existe categoria com o id especificado");
     }
 
-    const games = await db_connection.query(
+    const games = await dbConnection.query(
       `SELECT * FROM games WHERE name=$1`,
-      [newGame.name]
+      [name]
     );
 
     if (games.rows.length > 0) {
       return res.status(409).send("Já existe um jogo com esse nome");
     }
 
-    await db_connection.query(
+    await dbConnection.query(
       `INSERT INTO games (name, image, "stockTotal", "categoryId", "pricePerDay")
         VALUES ($1, $2, $3, $4, $5)`,
-      Object.values(newGame)
+      [name, image, stockTotal, categoryId, pricePerDay]
     );
 
     return res.sendStatus(201);

@@ -1,16 +1,16 @@
-import db_connection from "../database/connection.js";
+import dbConnection from "../database/connection.js";
 
 export async function getCustomers(req, res) {
   const { cpf } = req.query;
 
   try {
     if (!cpf) {
-      const result = await db_connection.query(`
+      const result = await dbConnection.query(`
       SELECT * FROM customers;`);
 
       res.send(result.rows);
     } else {
-      const result = await db_connection.query(
+      const result = await dbConnection.query(
         `SELECT * FROM customers WHERE cpf LIKE '${cpf}%';`
       );
 
@@ -26,7 +26,7 @@ export async function getCustomerById(req, res) {
   const { id } = req.params;
 
   try {
-    const result = await db_connection.query(
+    const result = await dbConnection.query(
       `SELECT * FROM customers WHERE id=$1`,
       [id]
     );
@@ -45,12 +45,12 @@ export async function getCustomerById(req, res) {
 }
 
 export async function createCustomer(req, res) {
-  const newCustomer = req.body;
+  const { name, phone, cpf, birthday } = req.body;
 
   try {
-    const customers = await db_connection.query(
+    const customers = await dbConnection.query(
       `SELECT * FROM customers WHERE cpf=$1;`,
-      [newCustomer.cpf]
+      [cpf]
     );
 
     if (customers.rows.length > 0) {
@@ -59,9 +59,9 @@ export async function createCustomer(req, res) {
         .send("Já existe um cliente cadastrado com esse CPF");
     }
 
-    await db_connection.query(
+    await dbConnection.query(
       `INSERT INTO customers (name, phone, cpf, birthday) VALUES ($1, $2, $3, $4)`,
-      Object.values(newCustomer)
+      [name, phone, cpf, birthday]
     );
 
     res.sendStatus(201);
