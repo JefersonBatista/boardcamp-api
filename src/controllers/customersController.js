@@ -70,3 +70,48 @@ export async function createCustomer(req, res) {
     res.status(500).send("Houve um erro interno no servidor");
   }
 }
+
+export async function updateCustomer(req, res) {
+  const id = parseInt(req.params.id);
+  const { name, phone, cpf, birthday } = req.body;
+
+  try {
+    const customer = await dbConnection.query(
+      `SELECT * FROM customers WHERE id=$1;`,
+      [id]
+    );
+
+    if (customer.rows.length < 1) {
+      return res
+        .status(404)
+        .send("Nenhum cliente foi encontrado com o ID especificado");
+    }
+
+    const customersWithSameCpf = await dbConnection.query(
+      `SELECT * FROM customers WHERE cpf=$1;`,
+      [cpf]
+    );
+
+    const numCustomersWithSameCpf = customersWithSameCpf.rows.length;
+    if (
+      numCustomersWithSameCpf === 1 &&
+      customersWithSameCpf.rows[0].id !== id
+    ) {
+      return res
+        .status(409)
+        .send("Já existe um cliente cadastrado com esse CPF");
+    }
+
+    await dbConnection.query(
+      `UPDATE customers
+        SET name=$2, phone=$3, cpf=$4, birthday=$5
+      WHERE id=$1`,
+      [id, name, phone, cpf, birthday]
+    );
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Houve um erro interno no servidor");
+  }
+}

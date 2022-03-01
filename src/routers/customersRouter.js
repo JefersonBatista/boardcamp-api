@@ -6,6 +6,7 @@ import {
   getCustomers,
   getCustomerById,
   createCustomer,
+  updateCustomer,
 } from "../controllers/customersController.js";
 
 const customersRouter = Router();
@@ -16,6 +17,11 @@ customersRouter.post(
   "/customers",
   validateSchema(customerSchema),
   createCustomer
+);
+customersRouter.put(
+  "/customers/:id",
+  validateSchema(customerSchema),
+  updateCustomer
 );
 
 export default customersRouter;

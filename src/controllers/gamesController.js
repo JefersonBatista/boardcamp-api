@@ -23,7 +23,7 @@ export async function createGame(req, res) {
     );
 
     if (category.rows.length === 0) {
-      return res.status(400).send("Não existe categoria com o id especificado");
+      return res.status(400).send("Não existe categoria com o ID especificado");
     }
 
     const games = await dbConnection.query(
