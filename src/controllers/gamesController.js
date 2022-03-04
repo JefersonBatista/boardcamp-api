@@ -3,7 +3,8 @@ import dbConnection from "../database/connection.js";
 export async function getGames(_, res) {
   try {
     const result = await dbConnection.query(
-      `SELECT games.*, categories.name AS "categoryName" FROM games JOIN categories ON games."categoryId"=categories.id;`
+      `SELECT games.*, categories.name AS "categoryName" FROM games
+        JOIN categories ON games."categoryId"=categories.id;`
     );
 
     return res.send(result.rows);
@@ -17,21 +18,21 @@ export async function createGame(req, res) {
   const { name, image, stockTotal, categoryId, pricePerDay } = req.body;
 
   try {
-    const category = await dbConnection.query(
+    const categoryResult = await dbConnection.query(
       `SELECT * FROM categories WHERE id=$1`,
       [categoryId]
     );
 
-    if (category.rows.length === 0) {
+    if (categoryResult.rowCount === 0) {
       return res.status(400).send("Não existe categoria com o ID especificado");
     }
 
-    const games = await dbConnection.query(
+    const gamesResult = await dbConnection.query(
       `SELECT * FROM games WHERE name=$1`,
       [name]
     );
 
-    if (games.rows.length > 0) {
+    if (gamesResult.rowCount > 0) {
       return res.status(409).send("Já existe um jogo com esse nome");
     }
 

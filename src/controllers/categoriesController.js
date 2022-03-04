@@ -15,12 +15,12 @@ export async function createCategory(req, res) {
   const { name } = req.body;
 
   try {
-    const categories = await dbConnection.query(
+    const categoriesResult = await dbConnection.query(
       `SELECT * FROM categories WHERE name=$1;`,
       [name]
     );
 
-    if (categories.rows.length > 0) {
+    if (categoriesResult.rowCount > 0) {
       return res.status(409).send("Já existe uma categoria com esse nome");
     }
 

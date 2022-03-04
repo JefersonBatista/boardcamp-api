@@ -48,12 +48,12 @@ export async function createCustomer(req, res) {
   const { name, phone, cpf, birthday } = req.body;
 
   try {
-    const customers = await dbConnection.query(
+    const customersResult = await dbConnection.query(
       `SELECT * FROM customers WHERE cpf=$1;`,
       [cpf]
     );
 
-    if (customers.rows.length > 0) {
+    if (customersResult.rowCount > 0) {
       return res
         .status(409)
         .send("Já existe um cliente cadastrado com esse CPF");
@@ -76,26 +76,26 @@ export async function updateCustomer(req, res) {
   const { name, phone, cpf, birthday } = req.body;
 
   try {
-    const customer = await dbConnection.query(
+    const customerResult = await dbConnection.query(
       `SELECT * FROM customers WHERE id=$1;`,
       [id]
     );
 
-    if (customer.rows.length < 1) {
+    if (customerResult.rowCount < 1) {
       return res
         .status(404)
         .send("Nenhum cliente foi encontrado com o ID especificado");
     }
 
-    const customersWithSameCpf = await dbConnection.query(
+    const customersWithSameCpfResult = await dbConnection.query(
       `SELECT * FROM customers WHERE cpf=$1;`,
       [cpf]
     );
 
-    const numCustomersWithSameCpf = customersWithSameCpf.rows.length;
+    const numCustomersWithSameCpf = customersWithSameCpfResult.rowCount;
     if (
       numCustomersWithSameCpf === 1 &&
-      customersWithSameCpf.rows[0].id !== id
+      customersWithSameCpfResult.rows[0].id !== id
     ) {
       return res
         .status(409)
