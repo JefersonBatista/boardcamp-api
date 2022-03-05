@@ -181,3 +181,37 @@ export async function finalizeRental(req, res) {
     res.status(500).send("Houve um erro interno no servidor");
   }
 }
+
+export async function deleteRental(req, res) {
+  const id = parseInt(req.params.id);
+
+  if (!id) {
+    return res.status(400).send("O ID especificado não é válido");
+  }
+
+  try {
+    const rentalResult = await dbConnection.query(
+      `SELECT * FROM rentals WHERE id=$1`,
+      [id]
+    );
+
+    if (rentalResult.rowCount < 1) {
+      return res
+        .status(404)
+        .send("Nenhum aluguel registrado com o ID especificado");
+    }
+
+    const [rental] = rentalResult.rows;
+    if (rental.returnDate) {
+      return res
+        .status(400)
+        .send("Este aluguel já foi finalizado e não pode ser excluído");
+    }
+
+    await dbConnection.query(`DELETE FROM rentals WHERE id=$1`, [id]);
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.error(error);
+  }
+}
