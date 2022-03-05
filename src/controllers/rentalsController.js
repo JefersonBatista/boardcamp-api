@@ -1,7 +1,8 @@
 import dbConnection from "../database/connection.js";
 
 export async function getRentals(req, res) {
-  const { customerId, gameId } = req.query;
+  const customerId = parseInt(req.query.customerId);
+  const gameId = parseInt(req.query.gameId);
 
   try {
     const rentalsResult = await dbConnection.query(
@@ -77,7 +78,7 @@ export async function createRental(req, res) {
     if (customerResult.rowCount < 1) {
       return res
         .status(400)
-        .send("Nenhum cliente cadastrado com o id especificado");
+        .send("Nenhum cliente cadastrado com o ID especificado");
     }
 
     const gameResult = await dbConnection.query(
@@ -88,7 +89,7 @@ export async function createRental(req, res) {
     if (gameResult.rowCount < 1) {
       return res
         .status(400)
-        .send("Nenhum jogo cadastrado com o id especificado");
+        .send("Nenhum jogo cadastrado com o ID especificado");
     }
 
     const [game] = gameResult.rows;
@@ -125,6 +126,56 @@ export async function createRental(req, res) {
     );
 
     res.sendStatus(201);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Houve um erro interno no servidor");
+  }
+}
+
+export async function finalizeRental(req, res) {
+  const id = parseInt(req.params.id);
+
+  if (!id) {
+    return res.status(400).send("O ID especificado não é válido");
+  }
+
+  try {
+    const rentalResult = await dbConnection.query(
+      `SELECT * FROM rentals WHERE id=$1`,
+      [id]
+    );
+
+    if (rentalResult.rowCount < 1) {
+      return res
+        .status(404)
+        .send("Nenhum aluguel registrado com o ID especificado");
+    }
+
+    const [rental] = rentalResult.rows;
+    if (rental.returnDate) {
+      return res.status(400).send("Este aluguel já foi finalizado");
+    }
+
+    const returnDate = new Date().toISOString().slice(0, 10);
+
+    const rentalDaysResult = await dbConnection.query(
+      `SELECT DATE_PART('day',$1::TIMESTAMP - $2::TIMESTAMP) AS days;`,
+      [returnDate, rental.rentDate]
+    );
+
+    const rentalDays = rentalDaysResult.rows[0].days;
+    const delayDays = rentalDays - rental.daysRented;
+    const pricePerDay = rental.originalPrice / rental.daysRented;
+    const delayFee = delayDays < 1 ? 0 : delayDays * pricePerDay;
+
+    await dbConnection.query(
+      `UPDATE rentals
+        SET "returnDate"=$2, "delayFee"=$3
+      WHERE id=$1`,
+      [id, returnDate, delayFee]
+    );
+
+    res.sendStatus(200);
   } catch (error) {
     console.error(error);
     res.status(500).send("Houve um erro interno no servidor");
