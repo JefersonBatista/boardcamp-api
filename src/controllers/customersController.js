@@ -11,7 +11,8 @@ export async function getCustomers(req, res) {
       res.send(result.rows);
     } else {
       const result = await dbConnection.query(
-        `SELECT * FROM customers WHERE cpf LIKE '${cpf}%';`
+        `SELECT * FROM customers WHERE cpf LIKE $1;`,
+        [`${cpf}%`]
       );
 
       res.send(result.rows);
@@ -23,7 +24,7 @@ export async function getCustomers(req, res) {
 }
 
 export async function getCustomerById(req, res) {
-  const { id } = req.params;
+  const id = parseInt(req.params.id);
 
   try {
     const result = await dbConnection.query(
