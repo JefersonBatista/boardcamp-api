@@ -6,6 +6,27 @@ export async function getRentals(req, res) {
 
   const offset = parseInt(req.query.offset);
   const limit = parseInt(req.query.limit);
+  const { order, desc } = req.query;
+
+  const orderColumn = [
+    "id",
+    "customerId",
+    "gameId",
+    "rentDate",
+    "daysRented",
+    "returnDate",
+    "originalPrice",
+    "delayFee",
+    "customerName",
+    "gameName",
+    "categoryId",
+    "categoryName",
+  ].includes(order)
+    ? `"${order}"`
+    : "id";
+
+  const descStr = desc && desc !== "false" && desc !== "0" ? " DESC" : "";
+  const orderStr = orderColumn + descStr;
 
   try {
     const rentalsResult = await dbConnection.query(
@@ -17,7 +38,8 @@ export async function getRentals(req, res) {
       FROM rentals
         JOIN customers ON rentals."customerId"=customers.id
         JOIN games ON rentals."gameId"=games.id
-        JOIN categories ON games."categoryId"=categories.id;`
+        JOIN categories ON games."categoryId"=categories.id
+      ORDER BY ${orderStr};`
     );
 
     const beginIndex = offset ? offset : 0;

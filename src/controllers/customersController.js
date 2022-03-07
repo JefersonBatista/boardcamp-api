@@ -4,18 +4,26 @@ export async function getCustomers(req, res) {
   const { cpf } = req.query;
   const offset = parseInt(req.query.offset);
   const limit = parseInt(req.query.limit);
+  const { order, desc } = req.query;
+
+  const orderColumn = ["id", "name", "phone", "cpf", "birthday"].includes(order)
+    ? `"${order}"`
+    : "id";
+
+  const descStr = desc && desc !== "false" && desc !== "0" ? " DESC" : "";
+  const orderStr = orderColumn + descStr;
 
   try {
     if (!cpf) {
       const result = await dbConnection.query(
-        `SELECT * FROM customers OFFSET $1 LIMIT $2;`,
+        `SELECT * FROM customers ORDER BY ${orderStr} OFFSET $1 LIMIT $2;`,
         [offset ? offset : null, limit ? limit : null]
       );
 
       res.send(result.rows);
     } else {
       const result = await dbConnection.query(
-        `SELECT * FROM customers WHERE cpf LIKE $1 OFFSET $2 LIMIT $3;`,
+        `SELECT * FROM customers WHERE cpf LIKE $1 ORDER BY ${orderStr} OFFSET $2 LIMIT $3;`,
         [`${cpf}%`, offset ? offset : null, limit ? limit : null]
       );
 

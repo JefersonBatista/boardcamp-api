@@ -3,12 +3,28 @@ import dbConnection from "../database/connection.js";
 export async function getGames(req, res) {
   const offset = parseInt(req.query.offset);
   const limit = parseInt(req.query.limit);
+  const { order, desc } = req.query;
+
+  const orderColumn = [
+    "id",
+    "name",
+    "image",
+    "stockTotal",
+    "categoryId",
+    "pricePerDay",
+    "categoryName",
+  ].includes(order)
+    ? `"${order}"`
+    : "id";
+
+  const descStr = desc && desc !== "false" && desc !== "0" ? " DESC" : "";
+  const orderStr = orderColumn + descStr;
 
   try {
     const result = await dbConnection.query(
       `SELECT games.*, categories.name AS "categoryName" FROM games
         JOIN categories ON games."categoryId"=categories.id
-      OFFSET $1 LIMIT $2;`,
+      ORDER BY ${orderStr} OFFSET $1 LIMIT $2;`,
       [offset ? offset : null, limit ? limit : null]
     );
 
