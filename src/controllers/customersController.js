@@ -2,17 +2,21 @@ import dbConnection from "../database/connection.js";
 
 export async function getCustomers(req, res) {
   const { cpf } = req.query;
+  const offset = parseInt(req.query.offset);
+  const limit = parseInt(req.query.limit);
 
   try {
     if (!cpf) {
-      const result = await dbConnection.query(`
-      SELECT * FROM customers;`);
+      const result = await dbConnection.query(
+        `SELECT * FROM customers OFFSET $1 LIMIT $2;`,
+        [offset ? offset : null, limit ? limit : null]
+      );
 
       res.send(result.rows);
     } else {
       const result = await dbConnection.query(
-        `SELECT * FROM customers WHERE cpf LIKE $1;`,
-        [`${cpf}%`]
+        `SELECT * FROM customers WHERE cpf LIKE $1 OFFSET $2 LIMIT $3;`,
+        [`${cpf}%`, offset ? offset : null, limit ? limit : null]
       );
 
       res.send(result.rows);

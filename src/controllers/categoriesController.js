@@ -1,8 +1,14 @@
 import dbConnection from "../database/connection.js";
 
-export async function getCategories(_, res) {
+export async function getCategories(req, res) {
+  const offset = parseInt(req.query.offset);
+  const limit = parseInt(req.query.limit);
+
   try {
-    const result = await dbConnection.query(`SELECT * FROM categories;`);
+    const result = await dbConnection.query(
+      `SELECT * FROM categories OFFSET $1 LIMIT $2;`,
+      [offset ? offset : null, limit ? limit : null]
+    );
 
     return res.send(result.rows);
   } catch (error) {

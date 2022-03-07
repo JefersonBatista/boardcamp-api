@@ -4,6 +4,9 @@ export async function getRentals(req, res) {
   const customerId = parseInt(req.query.customerId);
   const gameId = parseInt(req.query.gameId);
 
+  const offset = parseInt(req.query.offset);
+  const limit = parseInt(req.query.limit);
+
   try {
     const rentalsResult = await dbConnection.query(
       `SELECT
@@ -17,9 +20,13 @@ export async function getRentals(req, res) {
         JOIN categories ON games."categoryId"=categories.id;`
     );
 
+    const beginIndex = offset ? offset : 0;
+    const endIndex = limit ? beginIndex + limit : rentalsResult.rowCount;
+
     const rentals = rentalsResult.rows
       .filter((rental) => !customerId || rental.customerId === customerId)
       .filter((rental) => !gameId || rental.gameId === gameId)
+      .filter((_, index) => index >= beginIndex && index < endIndex)
       .map((rental) => {
         const {
           id,

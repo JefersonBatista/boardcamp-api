@@ -1,10 +1,15 @@
 import dbConnection from "../database/connection.js";
 
-export async function getGames(_, res) {
+export async function getGames(req, res) {
+  const offset = parseInt(req.query.offset);
+  const limit = parseInt(req.query.limit);
+
   try {
     const result = await dbConnection.query(
       `SELECT games.*, categories.name AS "categoryName" FROM games
-        JOIN categories ON games."categoryId"=categories.id;`
+        JOIN categories ON games."categoryId"=categories.id
+      OFFSET $1 LIMIT $2;`,
+      [offset ? offset : null, limit ? limit : null]
     );
 
     return res.send(result.rows);
